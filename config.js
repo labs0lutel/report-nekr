@@ -1,5 +1,3 @@
 // URL API с отчётами. Оставь пустым — отчёты только локально (localStorage).
-// Сервер на этом ПК:
-window.REPORTS_API_URL = "http://localhost:3000";
-// Когда перенесёшь сервер на виртуалку — замени на: "http://85.208.86.21:3000"
-// Для GitHub Pages (HTTPS) нужен HTTPS на API, иначе браузер заблокирует запросы.
+// Обязательно HTTPS, если сайт открыт с GitHub Pages (https://).
+window.REPORTS_API_URL = "https://report-nekr-production.up.railway.app";

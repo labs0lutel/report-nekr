@@ -3,8 +3,11 @@ const STORAGE_KEY = "reports.v1";
 const API_BASE = (() => {
   const raw = typeof window !== "undefined" && window.REPORTS_API_URL ? String(window.REPORTS_API_URL).trim() : "";
   if (!raw) return "";
-  const url = raw.replace(/\/$/, "");
-  return /^https?:\/\//i.test(url) ? url : "http://" + url;
+  let url = raw.replace(/\/$/, "");
+  url = /^https?:\/\//i.test(url) ? url : "http://" + url;
+  if (typeof location !== "undefined" && location.protocol === "https:" && url.startsWith("http://"))
+    url = "https://" + url.slice(7);
+  return url;
 })();
 
 const ADMIN_FIXED = 3500;
