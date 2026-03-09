@@ -1,0 +1,310 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Отчеты — Автоподсчет</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="bg" aria-hidden="true">
+      <div class="bg__blob bg__blob--a"></div>
+      <div class="bg__blob bg__blob--b"></div>
+      <div class="bg__grid"></div>
+    </div>
+
+    <header class="topbar">
+      <div class="container">
+        <div class="topbar__left">
+          <div class="brand">
+            <div class="brand__mark" aria-hidden="true"></div>
+            <div class="brand__text">
+              <div class="brand__title">Отчеты</div>
+              <div class="brand__subtitle">автоподсчет за 10 секунд</div>
+            </div>
+          </div>
+        </div>
+        <div class="topbar__right">
+          <button class="btn btn--ghost" id="btnNew">Новый</button>
+          <button class="btn btn--ghost" id="btnExport">Экспорт</button>
+          <button class="btn btn--danger" id="btnClearAll">Очистить</button>
+        </div>
+      </div>
+    </header>
+
+    <main class="container layout">
+      <section class="panel">
+        <div class="panel__header">
+          <h2 class="h2">Ввод данных</h2>
+          <div class="muted" id="lastSavedHint">Не сохранено</div>
+        </div>
+
+        <div class="grid2">
+          <label class="field">
+            <span class="field__label">Дата</span>
+            <input class="input" type="date" id="date" />
+          </label>
+          <label class="field">
+            <span class="field__label">Админ</span>
+            <input class="input" type="text" id="adminName" placeholder="Имя" />
+          </label>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="grid3">
+          <label class="field">
+            <span class="field__label">Выручка сегодня</span>
+            <div class="withSuffix">
+              <input class="input" type="text" inputmode="decimal" id="revenue" placeholder="например 32900" />
+              <span class="suffix">₽</span>
+            </div>
+          </label>
+          <label class="field">
+            <span class="field__label">Безнал сегодня</span>
+            <div class="withSuffix">
+              <input class="input" type="text" inputmode="decimal" id="cashless" placeholder="например 26700" />
+              <span class="suffix">₽</span>
+            </div>
+          </label>
+          <label class="field">
+            <span class="field__label">Админ (фикс)</span>
+            <div class="withSuffix">
+              <input class="input" type="text" id="adminFixed" value="3500" disabled />
+              <span class="suffix">₽</span>
+            </div>
+          </label>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="sectionHeader">
+          <div>
+            <div class="sectionHeader__title">Мастера</div>
+            <div class="muted">Вводишь “заработал”, остальное считается</div>
+          </div>
+          <button class="btn btn--ghost" id="btnResetMasters">Сброс</button>
+        </div>
+
+        <div class="masters" id="masters"></div>
+
+        <div class="divider"></div>
+
+        <div class="sectionHeader">
+          <div>
+            <div class="sectionHeader__title">Продажи (сегодня)</div>
+            <div class="muted">Список — сколько/за что и нал или безнал</div>
+          </div>
+          <button class="btn btn--primary" id="btnAddSale">Добавить продажу</button>
+        </div>
+        <div class="list" id="salesList"></div>
+
+        <div class="divider"></div>
+
+        <div class="sectionHeader">
+          <div>
+            <div class="sectionHeader__title">Траты (сегодня)</div>
+            <div class="muted">Список — сколько/за что и нал или безнал</div>
+          </div>
+          <button class="btn btn--primary" id="btnAddExpense">Добавить трату</button>
+        </div>
+        <div class="list" id="expensesList"></div>
+
+        <div class="divider"></div>
+
+        <div class="sectionHeader">
+          <div>
+            <div class="sectionHeader__title">Переходящие суммы</div>
+            <div class="muted">Берутся из прошлого отчета, но можно править</div>
+          </div>
+          <button class="btn btn--ghost" id="btnUseLast">Подставить из последнего</button>
+        </div>
+
+        <div class="grid2">
+          <label class="field">
+            <span class="field__label">Продажи за месяц (вчера)</span>
+            <div class="withSuffix">
+              <input class="input" type="text" inputmode="decimal" id="monthSalesPrev" />
+              <span class="suffix">₽</span>
+            </div>
+          </label>
+          <label class="field">
+            <span class="field__label">Траты за месяц (вчера)</span>
+            <div class="withSuffix">
+              <input class="input" type="text" inputmode="decimal" id="monthExpensesPrev" />
+              <span class="suffix">₽</span>
+            </div>
+          </label>
+          <label class="field">
+            <span class="field__label">Как считать “Нал (новое)”</span>
+            <select class="select" id="cashCalcMode">
+              <option value="cashflow">Касса: вчера + нал сегодня − траты_нал</option>
+              <option value="rule11">Строго по правилу 11</option>
+            </select>
+          </label>
+          <label class="field">
+            <span class="field__label">Остаток безнала (вчера)</span>
+            <div class="withSuffix">
+              <input class="input" type="text" inputmode="decimal" id="cashlessPrev" />
+              <span class="suffix">₽</span>
+            </div>
+          </label>
+          <label class="field">
+            <span class="field__label">Нал (вчера)</span>
+            <div class="withSuffix">
+              <input class="input" type="text" inputmode="decimal" id="cashPrev" />
+              <span class="suffix">₽</span>
+            </div>
+          </label>
+        </div>
+
+        <div class="actions actions--row">
+          <button class="btn btn--ghost" id="btnClearForm">Очистить ввод</button>
+          <button class="btn btn--primary" id="btnSave">Сохранить отчет</button>
+        </div>
+      </section>
+
+      <aside class="panel panel--sticky">
+        <div class="panel__header">
+          <h2 class="h2">Итог</h2>
+          <div class="chip" id="calcStatus">Считаю…</div>
+        </div>
+
+        <div class="cards">
+          <div class="card">
+            <div class="card__label">Прибыль (55% от выручки)</div>
+            <div class="card__value" id="profitValue">—</div>
+          </div>
+          <div class="card">
+            <div class="card__label">Нал сегодня (быстрый подсчет)</div>
+            <div class="card__value" id="cashTodayValue">—</div>
+            <div class="card__hint" id="cashTodayHint">—</div>
+          </div>
+          <div class="card">
+            <div class="card__label">К выплате мастерам</div>
+            <div class="card__value" id="mastersPayoutTotal">—</div>
+            <div class="card__hint" id="mastersPayoutHint">—</div>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="summary">
+          <div class="summary__row">
+            <div class="summary__k">Продажи сегодня</div>
+            <div class="summary__v" id="salesTodayTotal">—</div>
+          </div>
+          <div class="summary__row">
+            <div class="summary__k">Траты сегодня</div>
+            <div class="summary__v" id="expensesTodayTotal">—</div>
+          </div>
+          <div class="summary__row summary__row--strong">
+            <div class="summary__k">Продажи за месяц (новое)</div>
+            <div class="summary__v" id="monthSalesNew">—</div>
+          </div>
+          <div class="summary__row summary__row--strong">
+            <div class="summary__k">Траты за месяц (новое)</div>
+            <div class="summary__v" id="monthExpensesNew">—</div>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="cards cards--2">
+          <div class="card card--soft">
+            <div class="card__label">Остаток безнала (новое)</div>
+            <div class="card__value" id="cashlessNew">—</div>
+          </div>
+          <div class="card card--soft">
+            <div class="card__label">Нал (новое)</div>
+            <div class="card__value" id="cashNew">—</div>
+          </div>
+        </div>
+
+        <div class="card card--total">
+          <div class="card__label">Общий остаток (новое)</div>
+          <div class="card__value" id="totalNew">—</div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="sectionHeader">
+          <div>
+            <div class="sectionHeader__title">История</div>
+            <div class="muted">Клик — открыть отчет</div>
+          </div>
+        </div>
+        <div class="history" id="history"></div>
+      </aside>
+    </main>
+
+    <template id="tplMaster">
+      <div class="rowCard">
+        <div class="rowCard__left">
+          <input class="input input--sm" data-role="name" placeholder="Имя" />
+          <div class="muted small" data-role="calc">—</div>
+        </div>
+        <div class="rowCard__right">
+          <div class="withSuffix">
+            <input class="input input--sm" data-role="earned" inputmode="decimal" placeholder="Заработал" />
+            <span class="suffix">₽</span>
+          </div>
+          <button class="iconBtn" type="button" data-role="toggle" title="Участвует/не участвует">
+            <span data-role="toggleText">Работал</span>
+          </button>
+        </div>
+      </div>
+    </template>
+
+    <template id="tplItem">
+      <div class="rowCard">
+        <div class="rowCard__left">
+          <input class="input input--sm" data-role="title" placeholder="Например: Паста 100мл" />
+          <div class="muted small" data-role="meta"></div>
+        </div>
+        <div class="rowCard__right">
+          <select class="select select--sm" data-role="pay">
+            <option value="cashless">Безнал</option>
+            <option value="cash">Нал</option>
+          </select>
+          <div class="withSuffix">
+            <input class="input input--sm" data-role="amount" inputmode="decimal" placeholder="Сумма" />
+            <span class="suffix">₽</span>
+          </div>
+          <button class="iconBtn iconBtn--danger" type="button" data-role="remove" title="Удалить">Удалить</button>
+        </div>
+      </div>
+    </template>
+
+    <template id="tplHistoryItem">
+      <div class="historyItem">
+        <button class="historyItem__open" type="button" data-role="open">
+          <div class="historyItem__top">
+            <div class="historyItem__date" data-role="date">—</div>
+            <div class="historyItem__tag" data-role="admin">—</div>
+          </div>
+          <div class="historyItem__bottom">
+            <div class="historyItem__k">Выручка</div>
+            <div class="historyItem__v" data-role="revenue">—</div>
+            <div class="historyItem__k">Остаток</div>
+            <div class="historyItem__v" data-role="total">—</div>
+          </div>
+        </button>
+        <button class="historyItem__dl" type="button" data-role="download" title="Скачать отчет TXT">
+          TXT
+        </button>
+      </div>
+    </template>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+    <script src="./config.js"></script>
+    <script src="./app.js"></script>
+  </body>
+</html>
